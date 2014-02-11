@@ -17,8 +17,10 @@ import org.anonymous.dobroreaderme.networking.attach.AttachmentsThumbnailLoader;
 import org.anonymous.dobroreaderme.networking.attach.CachedAttachmentsThumbnailLoader;
 import org.anonymous.dobroreaderme.cache.FSCache;
 import org.anonymous.dobroreaderme.cache.FSJPGCache;
+import org.anonymous.dobroreaderme.cache.FSPNGCache;
 import org.anonymous.dobroreaderme.networking.attach.SimpleDownloader;
 import org.anonymous.dobroreaderme.networking.resolve.ResolveThread;
+import org.anonymous.dobroreaderme.settings.Settings;
 import org.anonymous.dobroreaderme.ui.ViewablePost;
 
 /**
@@ -56,8 +58,18 @@ public class BoardReader extends PostsReader {
         this.page = page;
         this.midlet = midlet;
 
-        setAttachmentsThumbnailLoader(new CachedAttachmentsThumbnailLoader(midlet, new SimpleDownloader(api), new FSJPGCache()));
-        //setAttachmentsThumbnailLoader(new AttachmentsThumbnailLoader(new SimpleDownloader(api)));
+        switch (Settings.cache_type) {
+            case Settings.NO_CACHE:
+                setAttachmentsThumbnailLoader(new AttachmentsThumbnailLoader(new SimpleDownloader(api)));
+                break;
+            case Settings.CACHE_JPG:
+                setAttachmentsThumbnailLoader(new CachedAttachmentsThumbnailLoader(new SimpleDownloader(api), new FSJPGCache(Settings.cache_path)));
+                break;
+            case Settings.CACHE_PNG:
+                setAttachmentsThumbnailLoader(new CachedAttachmentsThumbnailLoader(new SimpleDownloader(api), new FSPNGCache(Settings.cache_path)));
+                break;
+
+        }
     }
 
     public void changeBoard(String board) {
@@ -70,6 +82,7 @@ public class BoardReader extends PostsReader {
         thread_offset = 0;
         threads = new Vector();
         threads_posts = new Vector();
+
         resolve_thread = new BoardResolveThread(api, board, page);
         resolve_thread.start();
     }
@@ -140,10 +153,10 @@ public class BoardReader extends PostsReader {
         super.init();
         loadBoard();
     }
-    
+
     protected void update() throws Exception {
         super.update();
-        
+
         Exception e = getAttachmentsThumbnailLoader().getException();
         if (e != null) {
             getAttachmentsThumbnailLoader().removeException();

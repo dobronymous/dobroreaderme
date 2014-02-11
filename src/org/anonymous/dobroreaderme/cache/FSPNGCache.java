@@ -16,7 +16,11 @@ import javax.microedition.lcdui.Image;
  *
  * @author sp
  */
-public class FSPNGCache {
+public class FSPNGCache extends FSCache {
+
+    public FSPNGCache(String directory) {
+        super(directory);
+    }
     protected Image readImage(InputStream is) throws IOException {
         return Image.createImage(is);
     }
@@ -26,5 +30,8 @@ public class FSPNGCache {
         byte[] array = PNGEncoder.toPNG(img.getWidth(), img.getHeight(), chans[0], chans[1], chans[2], chans[3]);
         os.write(array);
     }
-}
 
+    protected String filename(int id) {
+        return id+".png";
+    }
+}

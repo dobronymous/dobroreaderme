@@ -11,6 +11,7 @@ import org.anonymous.dobroreaderme.Midlet;
 import org.anonymous.dobroreaderme.entities.attachment.BoardAttachment;
 import org.anonymous.dobroreaderme.networking.Api;
 import org.anonymous.dobroreaderme.networking.attach.AttachmentsThumbnailLoader;
+import org.anonymous.dobroreaderme.networking.attach.CachedAttachmentsThumbnailLoader;
 import org.anonymous.dobroreaderme.networking.attach.SimpleDownloader;
 import org.anonymous.dobroreaderme.networking.resolve.ThreadedAttachmentLoader;
 import org.anonymous.dobroreaderme.ui.ViewablePost;
@@ -40,9 +41,10 @@ public class PostsReader extends Reader {
 
     protected void init() {
         super.init();
-        
-        if (!image_loader.isAlive())
+
+        if (!image_loader.isAlive()) {
             image_loader.start();
+        }
     }
 
     protected void control(int keyCode, int state) {
@@ -61,16 +63,25 @@ public class PostsReader extends Reader {
             if (keyCode == -4) {
                 attachments_offset -= 30;
             }
-            if (keyCode == 48) {
-                load_image = true;
-                //image_loader.free();
-            }
+
             if (keyCode == 50) {
                 post_offset += getHeight() - font_height;
             }
-            
+
             if (keyCode == 56) {
                 post_offset -= getHeight() + font_height;
+            }
+        }
+        
+        if (state == 1) {
+            if (keyCode == 55) {
+                load_image = true;
+            }
+        }
+        
+        if (state == 2) {
+            if (keyCode == 48) {
+                getAttachmentsThumbnailLoader().free();
             }
         }
     }
@@ -116,8 +127,14 @@ public class PostsReader extends Reader {
                         int local_attachments_offset = attachments_offset;
                         for (int n = 0; n < p.getAttachments().size(); n++) {
                             BoardAttachment a = (BoardAttachment) p.getAttachments().elementAt(n);
-                            if (load_image && a.getLoadingState() == 0) {
-                                image_loader.addTask(a);
+                            if (a.getLoadingState() == 0) {
+                                if (getAttachmentsThumbnailLoader() instanceof CachedAttachmentsThumbnailLoader) {
+                                    CachedAttachmentsThumbnailLoader c = (CachedAttachmentsThumbnailLoader) getAttachmentsThumbnailLoader();
+                                    c.getCache().restore(a);
+                                }
+                                if (load_image) {
+                                    image_loader.addTask(a);
+                                }
                             }
 
                             if (a.getLoadingState() == 1) {

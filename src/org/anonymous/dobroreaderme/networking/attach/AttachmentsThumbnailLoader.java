@@ -12,6 +12,7 @@ import org.anonymous.dobroreaderme.Midlet;
 import org.anonymous.dobroreaderme.entities.attachment.BoardAttachment;
 import org.anonymous.dobroreaderme.networking.Api;
 import org.anonymous.dobroreaderme.networking.resolve.ResolveErrorException;
+import org.anonymous.dobroreaderme.settings.Settings;
 
 /**
  *
@@ -21,13 +22,11 @@ public class AttachmentsThumbnailLoader extends Thread {
     protected Stack tasks = new Stack();
     protected Vector loaded = new Vector();
     protected boolean locked = false;
-    protected Midlet midlet;
     protected Downloader downloader;
     protected Exception exception;
 
-    public AttachmentsThumbnailLoader(Midlet midlet, Downloader downloader) {
+    public AttachmentsThumbnailLoader(Downloader downloader) {
         this.downloader = downloader;
-        this.midlet = midlet;
     }
 
     public void run() {
@@ -41,7 +40,7 @@ public class AttachmentsThumbnailLoader extends Thread {
 
                     load(task);
 
-                    if (Runtime.getRuntime().freeMemory() < midlet.getMaxMem()/4) {
+                    if (Runtime.getRuntime().freeMemory() < Settings.max_mem/4) {
                         BoardAttachment a = (BoardAttachment) loaded.firstElement();
                         a.purgeThumbnail();
                         loaded.removeElementAt(0);

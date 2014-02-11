@@ -21,21 +21,20 @@ import javax.microedition.midlet.MIDlet;
 import org.anonymous.dobroreaderme.networking.aib.Dobrochan;
 import org.anonymous.dobroreaderme.networking.dobrochan.DobrochanApi;
 import org.anonymous.dobroreaderme.reader.BoardReader;
+import org.anonymous.dobroreaderme.settings.Settings;
 
 /**
  * @author sp
  */
 public class Midlet extends MIDlet {
-    protected long max_mem;
-    
     public void startApp() {
         try {
             Vector strings = new Vector();
             while (true) {
                 strings.addElement(new String("stress test; stress test; stress test;"));
                 
-                if (Runtime.getRuntime().totalMemory() > this.max_mem)
-                    this.max_mem = Runtime.getRuntime().totalMemory();
+                if (Runtime.getRuntime().totalMemory() > Settings.max_mem)
+                    Settings.max_mem = Runtime.getRuntime().totalMemory();
             }
         } catch (OutOfMemoryError e) {}
         
@@ -56,10 +55,6 @@ public class Midlet extends MIDlet {
 
     public void changeDisplayable(Displayable c) {
         Display.getDisplay(this).setCurrent(c);
-    }
-
-    public long getMaxMem() {
-        return max_mem;
     }
     
     public void pauseApp() {}

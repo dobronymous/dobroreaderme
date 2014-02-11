@@ -19,8 +19,8 @@ import org.anonymous.dobroreaderme.networking.resolve.ResolveErrorException;
 public class CachedAttachmentsThumbnailLoader extends AttachmentsThumbnailLoader {
     protected Cache cache;
     
-    public CachedAttachmentsThumbnailLoader(Midlet midlet, Downloader downloader, Cache cache) {
-        super(midlet, downloader);
+    public CachedAttachmentsThumbnailLoader(Downloader downloader, Cache cache) {
+        super(downloader);
         this.cache = cache;
     }
 
@@ -29,5 +29,9 @@ public class CachedAttachmentsThumbnailLoader extends AttachmentsThumbnailLoader
             super.load(attach);
             cache.store(attach);
         }
+    }
+
+    public Cache getCache() {
+        return cache;
     }
 }

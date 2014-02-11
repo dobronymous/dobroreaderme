@@ -21,16 +21,10 @@ import org.anonymous.dobroreaderme.entities.attachment.BoardAttachment;
  * @author sp
  */
 public abstract class FSCache implements Cache {
-
     protected String directory;
 
-    public FSCache(String directory) {
+    public FSCache(String directory) {  
         this.directory = directory;
-    }
-
-    public FSCache() {
-        this(System.getProperty("fileconn.dir.photos") + "/dobrochan/");
-        //this("file:///c:/user/other/dobrochan/");
         
         FileConnection c = null;
         try {
@@ -57,7 +51,7 @@ public abstract class FSCache implements Cache {
         FileConnection c = null;
         InputStream is = null;
         try {
-            c = (FileConnection) Connector.open(directory + attach.getId() + ".jpg", Connector.READ_WRITE);
+            c = (FileConnection) Connector.open(directory + filename(attach.getId()), Connector.READ_WRITE);
             if (c.exists()) {
                 is = c.openInputStream();
                 
@@ -86,7 +80,7 @@ public abstract class FSCache implements Cache {
         FileConnection c = null;
         OutputStream os = null;
         try {
-            c = (FileConnection) Connector.open(directory + attach.getId() + ".jpg", Connector.READ_WRITE);
+            c = (FileConnection) Connector.open(directory + filename(attach.getId()), Connector.READ_WRITE);
             if (c.exists()) {
                 c.delete();
             }
@@ -115,4 +109,6 @@ public abstract class FSCache implements Cache {
     protected abstract Image readImage(InputStream is) throws IOException;
 
     protected abstract void writeImage(OutputStream os, Image img) throws IOException;
+    
+    protected abstract String filename(int id);
 }

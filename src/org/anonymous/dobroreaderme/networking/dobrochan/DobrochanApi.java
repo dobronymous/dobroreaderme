@@ -40,12 +40,12 @@ public class DobrochanApi implements Api {
     public void setDispatcher(ResolveDispatcher d) {
         this.d = d;
     }
-    
+
     public Image loadImage(String src) throws ResolveErrorException {
         Image i = null;
         HttpConnection conn = null;
         InputStream is = null;
-        
+
         try {
             conn = HTTP.openConnection(dobrach.getHost() + "/" + src);
             is = conn.openInputStream();
@@ -58,15 +58,17 @@ public class DobrochanApi implements Api {
             throw new ResolveErrorException("IOException caused during image download: " + e.getMessage());
         } finally {
             try {
-                if (is != null)
+                if (is != null) {
                     is.close();
-                if (conn != null)
+                }
+                if (conn != null) {
                     conn.close();
+                }
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
         }
-        
+
         return i;
     }
 
@@ -78,14 +80,14 @@ public class DobrochanApi implements Api {
             if (c.getResponseCode() != 200) {
                 throw new ResolveErrorException("Server returned invalid response code: " + c.getResponseCode() + "; Message: " + c.getResponseMessage());
             }
-            
+
             is = c.openInputStream();
             StringBuffer b = new StringBuffer();
             int ch;
             // skip until threads array
             String posts_array_token = ", \"posts\": [";
             String header = StreamUtil.readUntilEndswith(is, posts_array_token);
-            BoardThread t = parseThreadHeader(new JSONObject(header.substring(0, header.length() - posts_array_token.length())+"}"));
+            BoardThread t = parseThreadHeader(new JSONObject(header.substring(0, header.length() - posts_array_token.length()) + "}"));
             d.resolved(t);
 
             // read threads
@@ -99,7 +101,7 @@ public class DobrochanApi implements Api {
                 if (braces >= 1) {
                     b.append((char) ch);
                 }
-                
+
                 // post brace closed
                 if (braces == 0 && b.toString().startsWith("{")) {
                     // add matching } to the end, parse, and send
@@ -111,7 +113,7 @@ public class DobrochanApi implements Api {
                     break;
                 }
             }
-            
+
         } catch (IOException ex) {
             ex.printStackTrace();
             throw new ResolveErrorException("IOException caused during resolving: " + ex.getMessage());
@@ -131,7 +133,7 @@ public class DobrochanApi implements Api {
             }
         }
     }
-    
+
     public void loadBoard(String board, int page) throws ResolveErrorException {
         HttpConnection c = null;
         InputStream is = null;
@@ -140,7 +142,7 @@ public class DobrochanApi implements Api {
             if (c.getResponseCode() != 200) {
                 throw new ResolveErrorException("Server returned invalid response code: " + c.getResponseCode() + "; Message: " + c.getResponseMessage());
             }
-            
+
             is = c.openInputStream();
             StringBuffer b = new StringBuffer();
             int ch;
@@ -159,15 +161,16 @@ public class DobrochanApi implements Api {
                 if (braces >= 1) {
                     b.append((char) ch);
                 }
-                
+
                 // thread brace closed
-                if (braces == 0 && b.toString().startsWith("{")) {
+                if (braces == 0 && b.toString().startsWith("{") && b.length() > 1) {
                     // add matching } to the end, parse, and send
                     d.resolved(parseThread(new JSONObject(b.toString() + "}")));
                     b = new StringBuffer();
                 }
 
                 if (brackets == 0) {
+                    System.out.println("suka nax");
                     break;
                 }
             }
@@ -190,7 +193,7 @@ public class DobrochanApi implements Api {
             }
         }
     }
-    
+
     protected BoardThread parseThread(JSONObject thread_json) throws JSONException {
         JSONArray posts = thread_json
                 .getJSONArray("posts");
@@ -205,14 +208,14 @@ public class DobrochanApi implements Api {
         thread.setPosts(postsVector);
         return thread;
     }
-    
-    protected BoardThread parseThreadHeader(JSONObject thread_json) throws JSONException { 
+
+    protected BoardThread parseThreadHeader(JSONObject thread_json) throws JSONException {
         return new BoardThread(thread_json.getInt("display_id"), thread_json.getInt("posts_count"), null);
     }
 
     protected BoardPost parsePost(JSONObject post) throws JSONException {
         Vector attachmentsVector = new Vector(5);
-        
+
         JSONArray attachments = post.getJSONArray("files");
         for (int i = 0; i < attachments.length(); i++) {
             JSONObject file = attachments.getJSONObject(i);
@@ -237,7 +240,7 @@ public class DobrochanApi implements Api {
                 ));
             }
         }
-        
+
         return new BoardPost(
                 post.getInt("display_id"),
                 post.getString("message"),

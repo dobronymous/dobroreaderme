@@ -19,6 +19,10 @@ import javax.microedition.lcdui.Image;
  * @author sp
  */
 public class FSJPGCache extends FSCache {
+
+    public FSJPGCache(String directory) {
+        super(directory);
+    }
     protected Image readImage(InputStream is) throws IOException {
         PixelArray pix = new PixelArray();
         new JPGDecoder().decode(is, pix);
@@ -28,6 +32,10 @@ public class FSJPGCache extends FSCache {
     
     protected void writeImage(OutputStream os, Image img) throws IOException {
         os.write(new JPGEncoder().encode(img, 60));
+    }
+
+    protected String filename(int id) {
+        return id + ".jpg";
     }
 }
 
