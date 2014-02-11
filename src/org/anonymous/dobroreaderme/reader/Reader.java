@@ -71,8 +71,6 @@ public class Reader extends Canvas implements ResolveDispatcher {
         g.fillRect(0, 0, getWidth(), font_height);
         g.setColor(255, 255, 255);
 
-        System.gc();
-        g.drawString("" + (Runtime.getRuntime().freeMemory()/1024), getWidth()-50, 0, 0);
         if (resolve_thread != null && resolve_thread.isAlive()) {
             if (ticker < 2) {
                 g.fillRect(getWidth() - font_height / 2 - ticker * (font_height / 2), font_height / 2, font_height / 2, font_height / 2);

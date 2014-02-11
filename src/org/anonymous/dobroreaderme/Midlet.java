@@ -37,6 +37,7 @@ public class Midlet extends MIDlet {
                     Settings.max_mem = Runtime.getRuntime().totalMemory();
             }
         } catch (OutOfMemoryError e) {}
+        System.gc();
         
         try {
             changeDisplayable(new BoardReader(

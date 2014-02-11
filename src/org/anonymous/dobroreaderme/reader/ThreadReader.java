@@ -6,7 +6,6 @@
 package org.anonymous.dobroreaderme.reader;
 
 import java.util.Vector;
-import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Graphics;
 import org.anonymous.dobroreaderme.Midlet;
 import org.anonymous.dobroreaderme.entities.BoardPost;
@@ -26,7 +25,7 @@ public class ThreadReader extends PostsReader implements ResolveDispatcher {
     protected BoardThread thread;
     protected String board;
     protected int id;
-    protected Displayable back;
+    protected Reader back;
 
     private class ThreadResolveThread extends ResolveThread {
 
@@ -52,7 +51,7 @@ public class ThreadReader extends PostsReader implements ResolveDispatcher {
         this.posts = new Vector();
     }
 
-    public ThreadReader(Api api, Midlet midlet, String board, int id, Displayable back, AttachmentsThumbnailLoader loader) {
+    public ThreadReader(Api api, Midlet midlet, String board, int id, Reader back, AttachmentsThumbnailLoader loader) {
         this(api, midlet, board, id);
         this.back = back;
         setAttachmentsThumbnailLoader(loader);
@@ -62,6 +61,30 @@ public class ThreadReader extends PostsReader implements ResolveDispatcher {
         super.paint(g);
         drawBar(g);
         repaint();
+    }
+
+    protected void drawBar(Graphics g) {
+        super.drawBar(g);
+
+        if (thread != null) {
+            String thread_str = ">>" + id;
+            int posts_count = thread.getPostsCount();
+
+            String post_str = (post_index) + "/" + posts_count;
+            int thread_str_len = font.stringWidth(post_str);
+            int percent = (int) Math.ceil((posts.size() * thread_str_len + 1) / (posts_count));
+
+            int offset = 0;
+            g.drawString(thread_str + "", 0, 0, 0);
+            offset += font.stringWidth(thread_str) + 10;
+
+            g.setColor(0, 0, 0);
+            g.fillRect(offset - 3, 0, thread_str_len + 6, font_height);
+            g.setColor(100, 100, 100);
+            g.fillRect(offset - 3, 0, percent + 6, font_height);
+            g.setColor(0, 0, 0);
+            g.drawString(post_str, offset, 0, 0);
+        }
     }
 
     protected void init() {
@@ -76,6 +99,7 @@ public class ThreadReader extends PostsReader implements ResolveDispatcher {
             if (keyCode == -6) {
                 this.thread = null;
                 this.posts = null;
+                api.setDispatcher(back); //@TODO
                 midlet.changeDisplayable(back);
                 back = null;
             }
@@ -83,11 +107,10 @@ public class ThreadReader extends PostsReader implements ResolveDispatcher {
     }
 
     public void resolved(BoardPost p) {
-        posts.addElement(new ViewablePost(p, font, getWidth()));
+        posts.addElement(new ViewablePost(p, font, getWidth() - 6));
     }
 
     public void resolved(BoardThread t) {
         thread = t;
-        System.out.println(t);
     }
 }

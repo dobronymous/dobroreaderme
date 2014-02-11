@@ -23,9 +23,11 @@ public class Settings {
     public static final int CACHE_PNG = 2;
     public static final int NO_CACHE = 0;
     
-    public static int cache_type = 1;
+    public static int cache_type = CACHE_JPG;
     
-    public static String cache_path = "file:///root/dobrochan/"; //"file:///c:/user/other/dobrochan/";
+    public static String cache_path = /* "file:///root/dobrochan/"; */ "file:///c:/user/other/dobrochan/";
     
     public static long max_mem = 4000000;
+    
+    public static boolean load_all_images = false;
 }

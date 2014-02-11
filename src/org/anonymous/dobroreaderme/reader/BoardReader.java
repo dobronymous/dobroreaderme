@@ -105,6 +105,7 @@ public class BoardReader extends PostsReader {
                         this,
                         getAttachmentsThumbnailLoader()
                 );
+                
                 midlet.changeDisplayable(r);
             }
 
@@ -195,10 +196,12 @@ public class BoardReader extends PostsReader {
     public void resolved(BoardThread t) {
         Vector posts = new Vector();
         for (int i = 0; i < t.getPosts().size(); i++) {
-            posts.addElement(new ViewablePost((BoardPost) t.getPosts().elementAt(i), font, getWidth()));
+            posts.addElement(new ViewablePost((BoardPost) t.getPosts().elementAt(i), font, getWidth() - 6));
         }
 
         threads_posts.addElement(posts);
+        
+        t.setPosts(new Vector());
         threads.addElement(t);
 
         if (threads_posts.size() == 1) {

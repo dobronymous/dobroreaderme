@@ -39,7 +39,8 @@ public class AttachmentsThumbnailLoader extends Thread {
                     locked = false;
 
                     load(task);
-
+                    System.gc();
+                    
                     if (Runtime.getRuntime().freeMemory() < Settings.max_mem/4) {
                         BoardAttachment a = (BoardAttachment) loaded.firstElement();
                         a.purgeThumbnail();
@@ -47,7 +48,7 @@ public class AttachmentsThumbnailLoader extends Thread {
                     }
                 }
                 
-                Thread.sleep(300);
+                Thread.sleep(500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 this.exception = e;

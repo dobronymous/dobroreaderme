@@ -169,10 +169,9 @@ public class DobrochanApi implements Api {
                     b = new StringBuffer();
                 }
 
-                if (brackets == 0) {
-                    System.out.println("suka nax");
+                /*if (brackets == 0) {
                     break;
-                }
+                }*/
             }
         } catch (IOException ex) {
             ex.printStackTrace();
