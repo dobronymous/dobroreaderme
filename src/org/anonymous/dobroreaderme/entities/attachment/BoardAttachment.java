@@ -44,8 +44,15 @@ public class BoardAttachment {
     
     public void setThumbnail(Image thumbnail) {
         this.thumbnail = thumbnail;
+        
+        if (thumbnail != null)
+            setLoaded();
     }
 
+    public int getId() {
+        return id;
+    }
+    
     public int getLoadingState() {
         return loading_state;
     }

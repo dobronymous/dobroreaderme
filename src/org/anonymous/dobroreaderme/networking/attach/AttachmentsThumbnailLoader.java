@@ -8,6 +8,7 @@ package org.anonymous.dobroreaderme.networking.attach;
 import java.io.IOException;
 import java.util.Stack;
 import java.util.Vector;
+import org.anonymous.dobroreaderme.Midlet;
 import org.anonymous.dobroreaderme.entities.attachment.BoardAttachment;
 import org.anonymous.dobroreaderme.networking.Api;
 import org.anonymous.dobroreaderme.networking.resolve.ResolveErrorException;
@@ -20,14 +21,18 @@ public class AttachmentsThumbnailLoader extends Thread {
     protected Stack tasks = new Stack();
     protected Vector loaded = new Vector();
     protected boolean locked = false;
+    protected Midlet midlet;
     protected Downloader downloader;
+    protected Exception exception;
 
-    public AttachmentsThumbnailLoader(Downloader downloader) {
+    public AttachmentsThumbnailLoader(Midlet midlet, Downloader downloader) {
         this.downloader = downloader;
+        this.midlet = midlet;
     }
 
     public void run() {
         while (true) {
+
             try {
                 if (!tasks.isEmpty()) {
                     locked = true;
@@ -36,19 +41,23 @@ public class AttachmentsThumbnailLoader extends Thread {
 
                     load(task);
 
-                    if (Runtime.getRuntime().freeMemory() < Runtime.getRuntime().totalMemory()/4) {
+                    if (Runtime.getRuntime().freeMemory() < midlet.getMaxMem()/4) {
                         BoardAttachment a = (BoardAttachment) loaded.firstElement();
                         a.purgeThumbnail();
                         loaded.removeElementAt(0);
                     }
                 }
+                
                 Thread.sleep(300);
             } catch (InterruptedException e) {
                 e.printStackTrace();
+                this.exception = e;
             } catch (ResolveErrorException e) {
                 e.printStackTrace();
+                this.exception = e;
             }
         }
+        
     }
 
     protected void load(BoardAttachment attach) throws ResolveErrorException {
@@ -75,4 +84,11 @@ public class AttachmentsThumbnailLoader extends Thread {
         loaded.addElement(attach);
     }
 
+    public Exception getException() {
+        return exception;
+    }
+    
+    public void removeException() {
+        exception = null;
+    }
 }

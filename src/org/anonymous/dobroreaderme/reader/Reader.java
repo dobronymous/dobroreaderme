@@ -90,8 +90,7 @@ public class Reader extends Canvas implements ResolveDispatcher {
         }
     }
 
-    protected void init() {
-    }
+    protected void init() {}
 
     protected void update() throws Exception {
         if (resolve_thread != null && resolve_thread.getException() != null) {

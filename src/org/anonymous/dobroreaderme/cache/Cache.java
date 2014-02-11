@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package org.anonymous.dobroreaderme.networking.attach;
+package org.anonymous.dobroreaderme.cache;
 
 import org.anonymous.dobroreaderme.entities.attachment.BoardAttachment;
 
@@ -13,5 +13,6 @@ import org.anonymous.dobroreaderme.entities.attachment.BoardAttachment;
  * @author sp
  */
 public interface Cache {
-    public boolean resotre(BoardAttachment attach);
+    public boolean restore(BoardAttachment attach);
+    public void store(BoardAttachment attach);
 }

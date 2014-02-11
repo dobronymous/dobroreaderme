@@ -22,12 +22,14 @@ import org.anonymous.dobroreaderme.ui.ViewablePost;
  * @author sp
  */
 public class ThreadReader extends PostsReader implements ResolveDispatcher {
+
     protected BoardThread thread;
     protected String board;
     protected int id;
     protected Displayable back;
-        
+
     private class ThreadResolveThread extends ResolveThread {
+
         protected Api api;
         protected String board;
         protected int id;
@@ -54,7 +56,7 @@ public class ThreadReader extends PostsReader implements ResolveDispatcher {
         this(api, midlet, board, id);
         this.back = back;
         setAttachmentsThumbnailLoader(loader);
-    } 
+    }
 
     protected void paint(Graphics g) {
         super.paint(g);
@@ -67,7 +69,7 @@ public class ThreadReader extends PostsReader implements ResolveDispatcher {
         resolve_thread = new ThreadResolveThread(api, board, id);
         resolve_thread.start();
     }
-    
+
     protected void control(int keyCode, int state) {
         super.control(keyCode, state);
         if (state == 1) {
@@ -79,11 +81,11 @@ public class ThreadReader extends PostsReader implements ResolveDispatcher {
             }
         }
     }
-    
+
     public void resolved(BoardPost p) {
         posts.addElement(new ViewablePost(p, font, getWidth()));
     }
-    
+
     public void resolved(BoardThread t) {
         thread = t;
         System.out.println(t);

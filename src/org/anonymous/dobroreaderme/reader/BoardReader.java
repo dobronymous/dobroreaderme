@@ -15,7 +15,8 @@ import org.anonymous.dobroreaderme.entities.BoardThread;
 import org.anonymous.dobroreaderme.networking.Api;
 import org.anonymous.dobroreaderme.networking.attach.AttachmentsThumbnailLoader;
 import org.anonymous.dobroreaderme.networking.attach.CachedAttachmentsThumbnailLoader;
-import org.anonymous.dobroreaderme.networking.attach.FSCache;
+import org.anonymous.dobroreaderme.cache.FSCache;
+import org.anonymous.dobroreaderme.cache.FSJPGCache;
 import org.anonymous.dobroreaderme.networking.attach.SimpleDownloader;
 import org.anonymous.dobroreaderme.networking.resolve.ResolveThread;
 import org.anonymous.dobroreaderme.ui.ViewablePost;
@@ -25,6 +26,7 @@ import org.anonymous.dobroreaderme.ui.ViewablePost;
  * @author sp
  */
 public class BoardReader extends PostsReader {
+
     protected String board;
     protected int page;
     protected int thread_offset;
@@ -32,6 +34,7 @@ public class BoardReader extends PostsReader {
     protected Vector threads = new Vector();
 
     private class BoardResolveThread extends ResolveThread {
+
         protected Api api;
         protected String board;
         protected int page;
@@ -52,18 +55,19 @@ public class BoardReader extends PostsReader {
         this.board = board;
         this.page = page;
         this.midlet = midlet;
-        
-        setAttachmentsThumbnailLoader(new CachedAttachmentsThumbnailLoader(new SimpleDownloader(api), new FSCache("/root/dobrochan")));
+
+        setAttachmentsThumbnailLoader(new CachedAttachmentsThumbnailLoader(midlet, new SimpleDownloader(api), new FSJPGCache()));
+        //setAttachmentsThumbnailLoader(new AttachmentsThumbnailLoader(new SimpleDownloader(api)));
     }
 
     public void changeBoard(String board) {
         this.board = board;
         loadBoard();
     }
-    
+
     protected void loadBoard() {
-        thread_offset = 0;
         getAttachmentsThumbnailLoader().free();
+        thread_offset = 0;
         threads = new Vector();
         threads_posts = new Vector();
         resolve_thread = new BoardResolveThread(api, board, page);
@@ -72,19 +76,13 @@ public class BoardReader extends PostsReader {
 
     protected void updateThread() {
         post_offset = 0;
-
-        try {
-            posts = (Vector) threads_posts.elementAt(thread_offset);
-        } catch (ArrayIndexOutOfBoundsException e) {
-
-        }
+        posts = (Vector) threads_posts.elementAt(thread_offset);
     }
 
     protected void control(int keyCode, int state) {
         super.control(keyCode, state);
 
         if (state == 1) {
-            System.out.println(keyCode);
             if (keyCode == -5) {
                 ThreadReader r = new ThreadReader(
                         api,
@@ -96,7 +94,7 @@ public class BoardReader extends PostsReader {
                 );
                 midlet.changeDisplayable(r);
             }
-            
+
             if (keyCode == 49) {
                 if (thread_offset > 0) {
                     thread_offset--;
@@ -142,6 +140,16 @@ public class BoardReader extends PostsReader {
         super.init();
         loadBoard();
     }
+    
+    protected void update() throws Exception {
+        super.update();
+        
+        Exception e = getAttachmentsThumbnailLoader().getException();
+        if (e != null) {
+            getAttachmentsThumbnailLoader().removeException();
+            throw e;
+        }
+    }
 
     protected void paint(Graphics g) {
         super.paint(g);
@@ -151,7 +159,24 @@ public class BoardReader extends PostsReader {
 
     protected void drawBar(Graphics g) {
         super.drawBar(g);
-        g.drawString(board + "/" + page + ":" + (thread_offset + 1) + "/" + threads_posts.size(), 0, 0, 0);
+        String board_str = board + "/" + page;
+        int threads_count = 10 > threads.size() ? 10 : threads.size();
+
+        String thread_str = (thread_offset + 1) + "/" + threads_count;
+        int thread_str_len = font.stringWidth(thread_str);
+        int percent = (int) Math.ceil((threads.size() * thread_str_len + 1) / (threads_count));
+
+        int offset = 0;
+        g.drawString(board_str + "", 0, 0, 0);
+        offset += font.stringWidth(board_str) + 10;
+
+        g.setColor(0, 0, 0);
+        g.fillRect(offset - 3, 0, thread_str_len + 6, font_height);
+        g.setColor(100, 100, 100);
+        g.fillRect(offset - 3, 0, percent + 6, font_height);
+        g.setColor(0, 0, 0);
+        g.drawString(thread_str, offset, 0, 0);
+
     }
 
     public void resolved(BoardThread t) {

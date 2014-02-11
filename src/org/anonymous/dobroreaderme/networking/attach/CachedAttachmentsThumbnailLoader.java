@@ -6,6 +6,8 @@
 
 package org.anonymous.dobroreaderme.networking.attach;
 
+import org.anonymous.dobroreaderme.Midlet;
+import org.anonymous.dobroreaderme.cache.Cache;
 import org.anonymous.dobroreaderme.entities.attachment.BoardAttachment;
 import org.anonymous.dobroreaderme.networking.Api;
 import org.anonymous.dobroreaderme.networking.resolve.ResolveErrorException;
@@ -17,14 +19,15 @@ import org.anonymous.dobroreaderme.networking.resolve.ResolveErrorException;
 public class CachedAttachmentsThumbnailLoader extends AttachmentsThumbnailLoader {
     protected Cache cache;
     
-    public CachedAttachmentsThumbnailLoader(Downloader downloader, Cache cache) {
-        super(downloader);
+    public CachedAttachmentsThumbnailLoader(Midlet midlet, Downloader downloader, Cache cache) {
+        super(midlet, downloader);
         this.cache = cache;
     }
 
     protected void load(BoardAttachment attach) throws ResolveErrorException {
-        if (!cache.resotre(attach)) {
+        if (!cache.restore(attach)) {
             super.load(attach);
+            cache.store(attach);
         }
     }
 }

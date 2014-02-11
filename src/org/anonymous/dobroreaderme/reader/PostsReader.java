@@ -24,7 +24,7 @@ public class PostsReader extends Reader {
     protected AttachmentsThumbnailLoader image_loader;
     protected Vector posts;
     protected int post_offset, attachments_offset;
-    protected boolean load_image = true, load_all_images = true;
+    protected boolean load_image = false, load_all_images = false;
 
     public PostsReader(Api api, Midlet midlet) {
         super(api, midlet);
@@ -62,8 +62,8 @@ public class PostsReader extends Reader {
                 attachments_offset -= 30;
             }
             if (keyCode == 48) {
-                //load_image = true;
-                image_loader.free();
+                load_image = true;
+                //image_loader.free();
             }
             if (keyCode == 50) {
                 post_offset += getHeight() - font_height;
@@ -89,17 +89,17 @@ public class PostsReader extends Reader {
                     int x = 5;
 
                     if (i == 0) {
-                        g.setColor(40, 0, 0);
+                        g.setColor(255, 255, 255);
                         x = 0;
                     } else {
-                        g.setColor(0, 40, 0);
+                        g.setColor(240, 224, 214);
                         x = 3;
                     }
                     int w = g.getClipWidth() - x * 2;
 
                     // rectangle
                     g.fillRoundRect(x, offset, w, font_height + p.getMessageHeight(font) + p.getSubjectHeight(font) + p.getAttachmentsHeight(), 20, 20);
-                    g.setColor(255, 255, 255);
+                    g.setColor(96, 0, 0);
                     // header
                     g.drawString("#" + p.getId() + " " + p.getName(), x + 1, offset, 0);
                     offset += font_height;
@@ -121,12 +121,12 @@ public class PostsReader extends Reader {
                             }
 
                             if (a.getLoadingState() == 1) {
-                                g.setColor(100, 100, 255);
+                                g.setColor(60, 60, 0);
                                 g.drawRect(local_attachments_offset, offset, a.getThumbHeight(), a.getThumbHeight());
                             } else if (a.getLoadingState() == 2) {
                                 g.drawImage(a.getThumbnail(), local_attachments_offset, offset, 0);
                             } else {
-                                g.setColor(255, 255, 255);
+                                g.setColor(96, 0, 0);
                                 g.drawRect(local_attachments_offset, offset, a.getThumbHeight(), a.getThumbHeight());
                             }
 
@@ -140,18 +140,18 @@ public class PostsReader extends Reader {
                         offset += p.getAttachmentsHeight();
                     }
 
-                    g.setColor(255, 255, 255);
+                    g.setColor(96, 0, 0);
                     // message
                     for (int n = 0; n < p.getMessageLines().size(); n++) {
                         String line = p.getMessageLines().elementAt(n).toString();
                         if (line.startsWith(">") && !line.startsWith(">>")) {
-                            g.setColor(230, 230, 0);
+                            g.setColor(120, 153, 34);
                         }
 
                         g.drawString(line.replace('\r', ' '), x, offset, 0);
 
                         if (line.endsWith("\r") || line.trim().equals(" ")) {
-                            g.setColor(255, 255, 255);
+                            g.setColor(96, 0, 0);
                         }
 
                         offset += font_height;

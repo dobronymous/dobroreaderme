@@ -3,26 +3,42 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package org.anonymous.dobroreaderme;
 
-import org.anonymous.dobroreaderme.reader.BoardReader;
-import javax.microedition.lcdui.Canvas;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Vector;
+import javax.microedition.io.Connector;
+import javax.microedition.io.file.FileConnection;
+import javax.microedition.io.file.FileSystemRegistry;
+import javax.microedition.lcdui.Command;
+import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Form;
-import javax.microedition.midlet.*;
+import javax.microedition.lcdui.TextField;
+import javax.microedition.midlet.MIDlet;
 import org.anonymous.dobroreaderme.networking.aib.Dobrochan;
-import org.anonymous.dobroreaderme.networking.attach.AttachmentsThumbnailLoader;
 import org.anonymous.dobroreaderme.networking.dobrochan.DobrochanApi;
-import org.anonymous.dobroreaderme.reader.ThreadReader;
+import org.anonymous.dobroreaderme.reader.BoardReader;
 
 /**
  * @author sp
  */
 public class Midlet extends MIDlet {
-   
+    protected long max_mem;
+    
     public void startApp() {
+        try {
+            Vector strings = new Vector();
+            while (true) {
+                strings.addElement(new String("stress test; stress test; stress test;"));
+                
+                if (Runtime.getRuntime().totalMemory() > this.max_mem)
+                    this.max_mem = Runtime.getRuntime().totalMemory();
+            }
+        } catch (OutOfMemoryError e) {}
+        
         try {
             changeDisplayable(new BoardReader(
                     new DobrochanApi(new Dobrochan("http://dobrochan.com")),
@@ -37,9 +53,13 @@ public class Midlet extends MIDlet {
             changeDisplayable(f);
         }
     }
-    
+
     public void changeDisplayable(Displayable c) {
         Display.getDisplay(this).setCurrent(c);
+    }
+
+    public long getMaxMem() {
+        return max_mem;
     }
     
     public void pauseApp() {}

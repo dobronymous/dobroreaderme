@@ -33,4 +33,8 @@ public class BoardThread {
     public int getId() {
         return id;
     }
+
+    public int getPostsCount() {
+        return posts_count;
+    }
 }
