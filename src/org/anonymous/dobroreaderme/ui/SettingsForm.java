@@ -17,6 +17,4 @@ public class SettingsForm extends Form {
     public SettingsForm() {
         super("Form");
     }
-    
-    
 }

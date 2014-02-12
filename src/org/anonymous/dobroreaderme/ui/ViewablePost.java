@@ -9,7 +9,6 @@ import java.util.Vector;
 import javax.microedition.lcdui.Font;
 import org.anonymous.dobroreaderme.entities.BoardPost;
 import org.anonymous.dobroreaderme.entities.attachment.BoardAttachment;
-import org.anonymous.dobroreaderme.entities.attachment.BoardImage;
 
 /**
  *
@@ -74,7 +73,7 @@ public class ViewablePost {
         return attachments;
     }
 
-    public static Vector format(String message, Font f, int width) {
+    public static Vector format2(String message, Font f, int width) {
         Vector lines = new Vector(message.length() / 20);
 
         String line = "";
@@ -101,23 +100,62 @@ public class ViewablePost {
         return lines;
     }
 
+    public static Vector format(String message, Font f, int width) {
+
+        Vector lines = new Vector();
+        String line = "";
+        String word = "";
+        for (int i = 0; i < message.length(); i++) {
+            char ch = message.charAt(i);
+
+            switch (ch) {
+                case ' ':
+                    word += ch;
+                    if (f.stringWidth(line + word) > width) {
+                        lines.addElement(line);
+                        line = word;
+                    } else {
+                        line += word;
+                    }
+                    word = "";
+
+                    break;
+                case '\n':
+                    if (f.stringWidth(line + word) > width) {
+                        lines.addElement(line);
+                        line = word;
+                    } else {
+                        lines.addElement(line + word);
+                        line = "";
+                    }
+                    word = "";
+
+                    break;
+                default:
+                    word += ch;
+                    break;
+            }
+        }
+        lines.addElement(line + word);
+
+        return lines;
+    }
+
     public static String trans(String s) {
+        //return s;
+
+        char rus[] = {
+            'А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ё', 'Ж', 'З', 'И', 'Й', 'К', 'Л', 'М', 'Н', 'О', 'П', 'Р', 'С', 'Т', 'У', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ', 'Ъ', 'Ы', 'Ь', 'Э', 'Ю', 'Я', 'а', 'б', 'в', 'г', 'д', 'е', 'ё', 'ж', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ц', 'ч', 'ш', 'щ', 'ъ', 'ы', 'ь', 'э', 'ю', 'я'
+        };
+
+        char eng[] = {
+            'A', 'B', 'V', 'G', 'D', 'E', 'E', 'Z', 'Z', 'I', 'I', 'K', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'F', 'H', 'C', 'C', 'S', 'S', ' ', ' ', ' ', 'E', 'U', 'Y', 'a', 'b', 'v', 'g', 'd', 'e', 'e', 'z', 'z', 'i', 'i', 'k', 'l', 'm', 'n', 'o', 'p', 'r', 's', 't', 'u', 'f', 'h', 'c', 'c', 's', 's', ' ', 'y', ' ', 'e', 'u', 'y'
+        };
+
+        for (int i = 0; i < eng.length; i++) {
+            s = s.replace(rus[i], eng[i]);
+        }
+
         return s;
-
-        /*
-         char rus[] = {
-         'А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ё', 'Ж', 'З', 'И', 'Й', 'К', 'Л', 'М', 'Н', 'О', 'П', 'Р', 'С', 'Т', 'У', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ', 'Ъ', 'Ы', 'Ь', 'Э', 'Ю', 'Я', 'а', 'б', 'в', 'г', 'д', 'е', 'ё', 'ж', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ц', 'ч', 'ш', 'щ', 'ъ', 'ы', 'ь', 'э', 'ю', 'я'
-         };
-
-         char eng[] = {
-         'A', 'B', 'V', 'G', 'D', 'E', 'E', 'Z', 'Z', 'I', 'I', 'K', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'F', 'H', 'C', 'C', 'S', 'S', ' ', ' ', ' ', 'E', 'U', 'Y', 'a', 'b', 'v', 'g', 'd', 'e', 'e', 'z', 'z', 'i', 'i', 'k', 'l', 'm', 'n', 'o', 'p', 'r', 's', 't', 'u', 'f', 'h', 'c', 'c', 's', 's', ' ', 'y', ' ', 'e', 'u', 'y'
-         };
-        
-         for (int i = 0; i < eng.length; i++) {
-         s = s.replace(rus[i], eng[i]);
-         }
-        
-         return s;
-         */
     }
 }

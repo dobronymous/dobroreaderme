@@ -5,18 +5,10 @@
  */
 package org.anonymous.dobroreaderme;
 
-import java.io.IOException;
-import java.util.Enumeration;
 import java.util.Vector;
-import javax.microedition.io.Connector;
-import javax.microedition.io.file.FileConnection;
-import javax.microedition.io.file.FileSystemRegistry;
-import javax.microedition.lcdui.Command;
-import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Form;
-import javax.microedition.lcdui.TextField;
 import javax.microedition.midlet.MIDlet;
 import org.anonymous.dobroreaderme.networking.aib.Dobrochan;
 import org.anonymous.dobroreaderme.networking.dobrochan.DobrochanApi;
@@ -28,8 +20,9 @@ import org.anonymous.dobroreaderme.settings.Settings;
  */
 public class Midlet extends MIDlet {
     public void startApp() {
+        Vector strings;
         try {
-            Vector strings = new Vector();
+            strings = new Vector();
             while (true) {
                 strings.addElement(new String("stress test; stress test; stress test;"));
                 
@@ -37,7 +30,9 @@ public class Midlet extends MIDlet {
                     Settings.max_mem = Runtime.getRuntime().totalMemory();
             }
         } catch (OutOfMemoryError e) {}
+        strings = null;
         System.gc();
+        System.out.println(Settings.max_mem);
         
         try {
             changeDisplayable(new BoardReader(

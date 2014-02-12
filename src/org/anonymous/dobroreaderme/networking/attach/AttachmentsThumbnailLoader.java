@@ -19,6 +19,7 @@ import org.anonymous.dobroreaderme.settings.Settings;
  * @author sp
  */
 public class AttachmentsThumbnailLoader extends Thread {
+
     protected Stack tasks = new Stack();
     protected Vector loaded = new Vector();
     protected boolean locked = false;
@@ -40,14 +41,15 @@ public class AttachmentsThumbnailLoader extends Thread {
 
                     load(task);
                     System.gc();
-                    
-                    if (Runtime.getRuntime().freeMemory() < Settings.max_mem/4) {
+
+                    if (Settings.max_mem - (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) < Settings.max_mem / 10) {
+                        System.out.println(Runtime.getRuntime().freeMemory());
                         BoardAttachment a = (BoardAttachment) loaded.firstElement();
                         a.purgeThumbnail();
                         loaded.removeElementAt(0);
                     }
                 }
-                
+
                 Thread.sleep(500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -57,7 +59,7 @@ public class AttachmentsThumbnailLoader extends Thread {
                 this.exception = e;
             }
         }
-        
+
     }
 
     protected void load(BoardAttachment attach) throws ResolveErrorException {
@@ -66,28 +68,33 @@ public class AttachmentsThumbnailLoader extends Thread {
     }
 
     public void free() {
-        while (locked) {}
+        while (locked) {
+        }
         locked = true;
+
         for (int i = 0; i < loaded.size(); i++) {
             BoardAttachment a = (BoardAttachment) loaded.elementAt(i);
             a.purgeThumbnail();
         }
         loaded.removeAllElements();
         tasks.removeAllElements();
-        locked = false;        
+        locked = false;
     }
-    
+
     public void addTask(BoardAttachment attach) {
         attach.setLoading();
         while (locked) {}
-        tasks.addElement(attach);
-        loaded.addElement(attach);
+
+        if (!loaded.contains(attach)) {
+            loaded.addElement(attach);
+            tasks.addElement(attach);
+        }
     }
 
     public Exception getException() {
         return exception;
     }
-    
+
     public void removeException() {
         exception = null;
     }

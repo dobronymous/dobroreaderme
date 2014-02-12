@@ -11,6 +11,7 @@ import org.anonymous.dobroreaderme.Midlet;
 import org.anonymous.dobroreaderme.entities.attachment.BoardAttachment;
 import org.anonymous.dobroreaderme.networking.Api;
 import org.anonymous.dobroreaderme.networking.attach.AttachmentsThumbnailLoader;
+import org.anonymous.dobroreaderme.networking.attach.CachedAttachmentsThumbnailLoader;
 import org.anonymous.dobroreaderme.settings.Settings;
 import org.anonymous.dobroreaderme.ui.ViewablePost;
 
@@ -75,10 +76,7 @@ public class PostsReader extends Reader {
             if (keyCode == 55) {
                 load_image = true;
             }
-        }
-
-        if (state == 2) {
-            if (keyCode == 55) {
+            if (keyCode == 57) {
                 Settings.load_all_images = !Settings.load_all_images;
             }
             if (keyCode == 48) {
@@ -138,11 +136,13 @@ public class PostsReader extends Reader {
                         for (int n = 0; n < p.getAttachments().size(); n++) {
                             BoardAttachment a = (BoardAttachment) p.getAttachments().elementAt(n);
                             if (a.getLoadingState() == 0) {
-                                /*
-                                 if (getAttachmentsThumbnailLoader() instanceof CachedAttachmentsThumbnailLoader) {
-                                 CachedAttachmentsThumbnailLoader c = (CachedAttachmentsThumbnailLoader) getAttachmentsThumbnailLoader();
-                                 c.getCache().restore(a);
-                                 }*/
+                                if (getAttachmentsThumbnailLoader() instanceof CachedAttachmentsThumbnailLoader) {
+                                    CachedAttachmentsThumbnailLoader c = (CachedAttachmentsThumbnailLoader) getAttachmentsThumbnailLoader();
+                                    if (c.getCache().exists(a)) {
+                                        image_loader.addTask(a);
+                                    }
+                                }
+                                 
                                 if (load_image || load_all_images) {
                                     image_loader.addTask(a);
                                 }

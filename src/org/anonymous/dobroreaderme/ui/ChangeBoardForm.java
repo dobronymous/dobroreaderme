@@ -12,8 +12,6 @@ import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.TextField;
 import org.anonymous.dobroreaderme.Midlet;
-import org.anonymous.dobroreaderme.networking.aib.Dobrochan;
-import org.anonymous.dobroreaderme.networking.dobrochan.DobrochanApi;
 import org.anonymous.dobroreaderme.reader.BoardReader;
 
 /**
@@ -22,7 +20,9 @@ import org.anonymous.dobroreaderme.reader.BoardReader;
  */
 public class ChangeBoardForm extends Form implements CommandListener {
     protected TextField board = new TextField("Board", "b", 32, TextField.ANY);
-    private Command submit = new Command("Submit", Command.SCREEN, 1);
+    protected Command submit = new Command("Submit", Command.SCREEN, 1);
+    protected Command back = new Command("Back", Command.BACK, 1);
+    
     protected Midlet midlet;
     protected BoardReader reader;
     
@@ -31,15 +31,21 @@ public class ChangeBoardForm extends Form implements CommandListener {
         
         this.midlet = midlet;
         this.reader = reader;
+        board.setString(reader.getBoard());
         
         append(board);
         addCommand(submit);
+        addCommand(back);
         setCommandListener(this);
     }
     
     public void commandAction(Command command, Displayable displayable) {
         if (command == submit) {
             reader.changeBoard(board.getString());
+            midlet.changeDisplayable(reader);
+        }
+        
+        if (command == back) {
             midlet.changeDisplayable(reader);
         }
     }

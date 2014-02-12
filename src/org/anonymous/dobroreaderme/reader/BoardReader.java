@@ -7,7 +7,6 @@ package org.anonymous.dobroreaderme.reader;
 
 import org.anonymous.dobroreaderme.ui.ChangeBoardForm;
 import java.util.Vector;
-import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Graphics;
 import org.anonymous.dobroreaderme.Midlet;
 import org.anonymous.dobroreaderme.entities.BoardPost;
@@ -15,7 +14,6 @@ import org.anonymous.dobroreaderme.entities.BoardThread;
 import org.anonymous.dobroreaderme.networking.Api;
 import org.anonymous.dobroreaderme.networking.attach.AttachmentsThumbnailLoader;
 import org.anonymous.dobroreaderme.networking.attach.CachedAttachmentsThumbnailLoader;
-import org.anonymous.dobroreaderme.cache.FSCache;
 import org.anonymous.dobroreaderme.cache.FSJPGCache;
 import org.anonymous.dobroreaderme.cache.FSPNGCache;
 import org.anonymous.dobroreaderme.networking.attach.SimpleDownloader;
@@ -207,5 +205,9 @@ public class BoardReader extends PostsReader {
         if (threads_posts.size() == 1) {
             updateThread();
         }
+    }
+
+    public String getBoard() {
+        return board;
     }
 }

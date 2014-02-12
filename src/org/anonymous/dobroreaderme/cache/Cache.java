@@ -13,6 +13,7 @@ import org.anonymous.dobroreaderme.entities.attachment.BoardAttachment;
  * @author sp
  */
 public interface Cache {
+    public boolean exists(BoardAttachment attach);
     public boolean restore(BoardAttachment attach);
     public void store(BoardAttachment attach);
 }

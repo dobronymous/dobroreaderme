@@ -21,18 +21,19 @@ import org.anonymous.dobroreaderme.entities.attachment.BoardAttachment;
  * @author sp
  */
 public abstract class FSCache implements Cache {
+
     protected String directory;
 
-    public FSCache(String directory) {  
+    public FSCache(String directory) {
         this.directory = directory;
-        
+
         FileConnection c = null;
         try {
             c = (FileConnection) Connector.open(directory, Connector.READ_WRITE);
             if (!c.exists()) {
                 c.create();
             }
-            
+
         } catch (IOException ex) {
             ex.printStackTrace();
         } finally {
@@ -46,6 +47,29 @@ public abstract class FSCache implements Cache {
         }
     }
 
+    public boolean exists(BoardAttachment attach) {
+        FileConnection c = null;
+        InputStream is = null;
+        try {
+            c = (FileConnection) Connector.open(directory + filename(attach.getId()), Connector.READ_WRITE);
+            return c.exists();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } finally {
+            try {
+                if (c != null) {
+                    c.close();
+                }
+                if (is != null) {
+                    is.close();
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        return false;
+    }
 
     public boolean restore(BoardAttachment attach) {
         FileConnection c = null;
@@ -54,7 +78,7 @@ public abstract class FSCache implements Cache {
             c = (FileConnection) Connector.open(directory + filename(attach.getId()), Connector.READ_WRITE);
             if (c.exists()) {
                 is = c.openInputStream();
-                
+
                 attach.setThumbnail(readImage(is));
                 return true;
             }
@@ -84,10 +108,10 @@ public abstract class FSCache implements Cache {
             if (c.exists()) {
                 c.delete();
             }
-            
+
             c.create();
             os = c.openOutputStream();
-            
+
             writeImage(os, attach.getThumbnail());
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -104,11 +128,12 @@ public abstract class FSCache implements Cache {
             }
         }
 
-    }    
-    
+    }
+
     protected abstract Image readImage(InputStream is) throws IOException;
 
     protected abstract void writeImage(OutputStream os, Image img) throws IOException;
-    
+
     protected abstract String filename(int id);
+
 }

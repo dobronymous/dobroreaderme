@@ -23,7 +23,7 @@ public class Settings {
     public static final int CACHE_PNG = 2;
     public static final int NO_CACHE = 0;
     
-    public static int cache_type = CACHE_JPG;
+    public static int cache_type = CACHE_PNG;
     
     public static String cache_path = /* "file:///root/dobrochan/"; */ "file:///c:/user/other/dobrochan/";
     
