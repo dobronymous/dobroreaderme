@@ -195,7 +195,7 @@ public class PostsReader extends Reader {
 
                         offset += font_height;
                     }
-
+                    
                     offset += margin;
                 } else {
                     offset += font_height;

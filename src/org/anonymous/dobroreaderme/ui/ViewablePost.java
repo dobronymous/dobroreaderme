@@ -73,33 +73,6 @@ public class ViewablePost {
         return attachments;
     }
 
-    public static Vector format2(String message, Font f, int width) {
-        Vector lines = new Vector(message.length() / 20);
-
-        String line = "";
-        for (int i = 0; i < message.length(); i++) {
-            char ch = message.charAt(i);
-            if (ch == '\n') {
-                if (!line.endsWith("\r")) {
-                    line = line + "\r";
-                }
-                lines.addElement(trans(line));
-                line = "";
-            } else if (f.stringWidth(line + ch) >= width) {
-                lines.addElement(trans(line));
-                line = "" + ch;
-            } else {
-                line = line + ch;
-            }
-        }
-
-        if (line != "") {
-            lines.addElement(trans(line));
-        }
-
-        return lines;
-    }
-
     public static Vector format(String message, Font f, int width) {
 
         Vector lines = new Vector();
@@ -121,6 +94,7 @@ public class ViewablePost {
 
                     break;
                 case '\n':
+                    word += '\r';
                     if (f.stringWidth(line + word) > width) {
                         lines.addElement(line);
                         line = word;
@@ -130,6 +104,8 @@ public class ViewablePost {
                     }
                     word = "";
 
+                    break;
+                case '\r':
                     break;
                 default:
                     word += ch;
@@ -142,8 +118,6 @@ public class ViewablePost {
     }
 
     public static String trans(String s) {
-        //return s;
-
         char rus[] = {
             'А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ё', 'Ж', 'З', 'И', 'Й', 'К', 'Л', 'М', 'Н', 'О', 'П', 'Р', 'С', 'Т', 'У', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ', 'Ъ', 'Ы', 'Ь', 'Э', 'Ю', 'Я', 'а', 'б', 'в', 'г', 'д', 'е', 'ё', 'ж', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ц', 'ч', 'ш', 'щ', 'ъ', 'ы', 'ь', 'э', 'ю', 'я'
         };

@@ -29,12 +29,11 @@ public class BoardReader extends PostsReader {
 
     protected String board;
     protected int page;
-    protected int thread_offset;
+    protected int thread_offset, thread_load_into;
     protected Vector threads_posts = new Vector();
     protected Vector threads = new Vector();
 
     private class BoardResolveThread extends ResolveThread {
-
         protected Api api;
         protected String board;
         protected int page;
@@ -48,6 +47,22 @@ public class BoardReader extends PostsReader {
         public void action() throws Exception {
             api.loadBoard(board, page);
         }
+    }
+    
+    private class ThreadUpdateThread extends ResolveThread {
+        protected Api api;
+        protected String board;
+        protected BoardThread thread;
+
+        public ThreadUpdateThread(Api api, String board, BoardThread thread) {
+            this.api = api;
+            this.board = board;
+            this.thread = thread;
+        }
+
+        public void action() throws Exception {
+            api.updateThread(board, thread);
+        } 
     }
 
     public BoardReader(Api api, Midlet midlet, String board, int page) {
@@ -81,8 +96,8 @@ public class BoardReader extends PostsReader {
         threads = new Vector();
         threads_posts = new Vector();
 
-        resolve_thread = new BoardResolveThread(api, board, page);
-        resolve_thread.start();
+        setResolveThread(new BoardResolveThread(api, board, page));
+        startResolveThread();
     }
 
     protected void updateThread() {
@@ -136,7 +151,10 @@ public class BoardReader extends PostsReader {
             }
 
             if (keyCode == 35) {
-                loadBoard();
+                BoardThread current = (BoardThread) threads.elementAt(thread_offset);
+                thread_load_into = thread_offset;
+                setResolveThread(new ThreadUpdateThread(api, board, current));
+                startResolveThread();
             }
 
             if (keyCode == 42) {
@@ -186,11 +204,15 @@ public class BoardReader extends PostsReader {
         g.fillRect(offset - 3, 0, thread_str_len + 6, font_height);
         g.setColor(100, 100, 100);
         g.fillRect(offset - 3, 0, percent + 6, font_height);
-        g.setColor(0, 0, 0);
+        g.setColor(92, 0, 0);
         g.drawString(thread_str, offset, 0, 0);
 
     }
 
+    public void resolved(BoardPost p) {
+        ((Vector) threads_posts.elementAt(thread_load_into)).addElement(new ViewablePost(p, font, getWidth() - 6));
+    }
+    
     public void resolved(BoardThread t) {
         Vector posts = new Vector();
         for (int i = 0; i < t.getPosts().size(); i++) {
@@ -198,8 +220,10 @@ public class BoardReader extends PostsReader {
         }
 
         threads_posts.addElement(posts);
-        
-        t.setPosts(new Vector());
+
+        Vector only_last = new Vector(1);
+        only_last.addElement(t.getPosts().lastElement());
+        t.setPosts(only_last); 
         threads.addElement(t);
 
         if (threads_posts.size() == 1) {

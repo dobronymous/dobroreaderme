@@ -43,7 +43,23 @@ public class ThreadReader extends PostsReader implements ResolveDispatcher {
             api.loadThread(board, id);
         }
     }
+    
+    private class ThreadUpdateThread extends ResolveThread {
+        protected Api api;
+        protected String board;
+        protected BoardThread thread;
 
+        public ThreadUpdateThread(Api api, String board, BoardThread thread) {
+            this.api = api;
+            this.board = board;
+            this.thread = thread;
+        }
+
+        public void action() throws Exception {
+            api.updateThread(board, thread);
+        } 
+    }
+    
     public ThreadReader(Api api, Midlet midlet, String board, int id) {
         super(api, midlet);
         this.board = board;
@@ -67,10 +83,10 @@ public class ThreadReader extends PostsReader implements ResolveDispatcher {
         super.drawBar(g);
 
         if (thread != null) {
-            String thread_str = ">>" + id;
+            String thread_str = ">>" + board + "/" + id;
             int posts_count = thread.getPostsCount();
 
-            String post_str = (post_index) + "/" + posts_count;
+            String post_str = (posts.size()) + "/" + posts_count;
             int thread_str_len = font.stringWidth(post_str);
             int percent = (int) Math.ceil((posts.size() * thread_str_len + 1) / (posts_count));
 
@@ -82,15 +98,16 @@ public class ThreadReader extends PostsReader implements ResolveDispatcher {
             g.fillRect(offset - 3, 0, thread_str_len + 6, font_height);
             g.setColor(100, 100, 100);
             g.fillRect(offset - 3, 0, percent + 6, font_height);
-            g.setColor(0, 0, 0);
+            g.setColor(92, 0, 0);
             g.drawString(post_str, offset, 0, 0);
         }
     }
 
     protected void init() {
         super.init();
-        resolve_thread = new ThreadResolveThread(api, board, id);
-        resolve_thread.start();
+        
+        setResolveThread(new ThreadResolveThread(api, board, id));
+        startResolveThread();
     }
 
     protected void control(int keyCode, int state) {
@@ -103,11 +120,18 @@ public class ThreadReader extends PostsReader implements ResolveDispatcher {
                 midlet.changeDisplayable(back);
                 back = null;
             }
+            
+            if (keyCode == 35) {
+                setResolveThread(new ThreadUpdateThread(api, board, thread));
+                startResolveThread();
+            }
         }
     }
 
     public void resolved(BoardPost p) {
         posts.addElement(new ViewablePost(p, font, getWidth() - 6));
+        thread.getPosts().removeAllElements();
+        thread.getPosts().addElement(p);
     }
 
     public void resolved(BoardThread t) {

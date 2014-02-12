@@ -71,7 +71,7 @@ public class Reader extends Canvas implements ResolveDispatcher {
         g.fillRect(0, 0, getWidth(), font_height);
         g.setColor(255, 255, 255);
 
-        if (resolve_thread != null && resolve_thread.isAlive()) {
+        if (getResolveThread() != null && getResolveThread().isAlive()) {
             if (ticker < 2) {
                 g.fillRect(getWidth() - font_height / 2 - ticker * (font_height / 2), font_height / 2, font_height / 2, font_height / 2);
             } else {
@@ -88,11 +88,27 @@ public class Reader extends Canvas implements ResolveDispatcher {
         }
     }
 
+    public ResolveThread getResolveThread() {
+        return resolve_thread;
+    }
+    
+    public void setResolveThread(ResolveThread rt) {
+        if (getResolveThread() != null && getResolveThread().isAlive()) {
+            throw new IllegalStateException("");
+        }
+        
+        resolve_thread = rt;
+    }
+    
+    public void startResolveThread() {
+        resolve_thread.start();
+    }
+    
     protected void init() {}
 
     protected void update() throws Exception {
-        if (resolve_thread != null && resolve_thread.getException() != null) {
-            throw resolve_thread.getException();
+        if (getResolveThread() != null && getResolveThread().getException() != null) {
+            throw getResolveThread().getException();
         }
     }
 

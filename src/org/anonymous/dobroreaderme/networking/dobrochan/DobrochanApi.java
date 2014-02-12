@@ -73,10 +73,23 @@ public class DobrochanApi implements Api {
     }
 
     public void loadThread(String board, int id) throws ResolveErrorException {
+        resolveThread(dobrach.getHost() + "/api/thread/" + board + "/" + id + "/all.json", true, true);
+    }
+
+    public void updateThread(String board, BoardThread thread) throws ResolveErrorException {
+        int last_post = ((BoardPost) thread.getPosts().lastElement()).getId();
+        resolveThread(dobrach.getHost() + "/api/thread/" + board + "/" + thread.getId() + "/new.json?last_post=" + last_post, false, true);
+    }
+
+    public void loadBoard(String board, int page) throws ResolveErrorException {
+        resolveBoard(dobrach.getHost() + "/" + board + "/" + page + ".json", true, true);
+    }
+
+    protected void resolveThread(String url, boolean send_thread, boolean send_post) throws ResolveErrorException {
         HttpConnection c = null;
         InputStream is = null;
         try {
-            c = HTTP.openConnection(dobrach.getHost() + "/api/thread/" + board + "/" + id + "/all.json");
+            c = HTTP.openConnection(url);
             if (c.getResponseCode() != 200) {
                 throw new ResolveErrorException("Server returned invalid response code: " + c.getResponseCode() + "; Message: " + c.getResponseMessage());
             }
@@ -87,8 +100,13 @@ public class DobrochanApi implements Api {
             // skip until threads array
             String posts_array_token = ", \"posts\": [";
             String header = StreamUtil.readUntilEndswith(is, posts_array_token);
-            BoardThread t = parseThreadHeader(new JSONObject(header.substring(0, header.length() - posts_array_token.length()) + "}"));
-            d.resolved(t);
+            if (!header.endsWith("}")) {
+                header = header.substring(0, header.length() - posts_array_token.length()) + "}";
+            }
+
+            BoardThread t = parseThreadHeader(new JSONObject(header));
+            if (send_thread)
+                d.resolved(t);
 
             // read threads
             int braces = 0, brackets = 1; // one bracket we're already skipped
@@ -105,7 +123,8 @@ public class DobrochanApi implements Api {
                 // post brace closed
                 if (braces == 0 && b.toString().startsWith("{")) {
                     // add matching } to the end, parse, and send
-                    d.resolved(parsePost(new JSONObject(b.toString() + "}")));
+                    if (send_post)
+                        d.resolved(parsePost(new JSONObject(b.toString() + "}")));
                     b = new StringBuffer();
                 }
 
@@ -134,11 +153,11 @@ public class DobrochanApi implements Api {
         }
     }
 
-    public void loadBoard(String board, int page) throws ResolveErrorException {
+    protected void resolveBoard(String url, boolean send_thread, boolean send_post) throws ResolveErrorException {
         HttpConnection c = null;
         InputStream is = null;
         try {
-            c = HTTP.openConnection(dobrach.getHost() + "/" + board + "/" + page + ".json");
+            c = HTTP.openConnection(url);
             if (c.getResponseCode() != 200) {
                 throw new ResolveErrorException("Server returned invalid response code: " + c.getResponseCode() + "; Message: " + c.getResponseMessage());
             }
@@ -170,8 +189,8 @@ public class DobrochanApi implements Api {
                 }
 
                 /*if (brackets == 0) {
-                    break;
-                }*/
+                 break;
+                 }*/
             }
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -209,7 +228,7 @@ public class DobrochanApi implements Api {
     }
 
     protected BoardThread parseThreadHeader(JSONObject thread_json) throws JSONException {
-        return new BoardThread(thread_json.getInt("display_id"), thread_json.getInt("posts_count"), null);
+        return new BoardThread(thread_json.getInt("display_id"), thread_json.getInt("posts_count"), new Vector());
     }
 
     protected BoardPost parsePost(JSONObject post) throws JSONException {
