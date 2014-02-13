@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package org.anonymous.dobroreaderme.ui;
+package org.anonymous.dobroreaderme.ui.forms;
 
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;

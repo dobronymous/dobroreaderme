@@ -19,21 +19,26 @@ import org.anonymous.dobroreaderme.settings.Settings;
  * @author sp
  */
 public class Midlet extends MIDlet {
+
     public void startApp() {
+        Settings.restore();
+        System.out.println(Settings.max_mem);
         Vector strings;
         try {
             strings = new Vector();
             while (true) {
                 strings.addElement(new String("stress test; stress test; stress test;"));
-                
-                if (Runtime.getRuntime().totalMemory() > Settings.max_mem)
-                    Settings.max_mem = Runtime.getRuntime().totalMemory();
+
+                if (Runtime.getRuntime().totalMemory() > Settings.max_mem) {
+                    Settings.max_mem = (int) Runtime.getRuntime().totalMemory();
+                }
             }
-        } catch (OutOfMemoryError e) {}
+        } catch (OutOfMemoryError e) {
+        }
         strings = null;
         System.gc();
-        System.out.println(Settings.max_mem);
-        
+        Settings.store();
+
         try {
             changeDisplayable(new BoardReader(
                     new DobrochanApi(new Dobrochan("http://dobrochan.com")),
@@ -52,8 +57,11 @@ public class Midlet extends MIDlet {
     public void changeDisplayable(Displayable c) {
         Display.getDisplay(this).setCurrent(c);
     }
-    
-    public void pauseApp() {}
-    public void destroyApp(boolean unconditional) {}
+
+    public void pauseApp() {
+    }
+
+    public void destroyApp(boolean unconditional) {
+    }
 
 }

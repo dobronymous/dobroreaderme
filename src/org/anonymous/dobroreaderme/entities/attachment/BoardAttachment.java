@@ -8,17 +8,19 @@ package org.anonymous.dobroreaderme.entities.attachment;
 
 import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Image;
+import org.anonymous.dobroreaderme.networking.DownloadProgressTracker;
 
 /**
  *
  * @author sp
  */
-public class BoardAttachment {
+public class BoardAttachment implements DownloadProgressTracker {
     protected String type;
     protected String src;
     protected String thumb_src;
     protected Image thumbnail;
     protected int size, th, id;
+    protected long thumb_size, thumb_downloaded_size;
     protected int loading_state = 0;
 
     public BoardAttachment(String type, String src, int id, int size, String thumb_src, int th) {
@@ -68,5 +70,21 @@ public class BoardAttachment {
     public void purgeThumbnail() {
         loading_state = 0;
         thumbnail = null;
+    }
+
+    public void setTotal(long bytes) {
+        thumb_size = bytes;
+    }
+
+    public void setCompleted(long bytes) {
+        thumb_downloaded_size = bytes;
+    }
+
+    public long getCompleted() {
+        return thumb_downloaded_size;
+    }
+
+    public long getTotal() {
+        return thumb_size;
     }
 }

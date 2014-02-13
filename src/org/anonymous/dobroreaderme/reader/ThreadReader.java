@@ -14,6 +14,7 @@ import org.anonymous.dobroreaderme.networking.Api;
 import org.anonymous.dobroreaderme.networking.attach.AttachmentsThumbnailLoader;
 import org.anonymous.dobroreaderme.networking.resolve.ResolveDispatcher;
 import org.anonymous.dobroreaderme.networking.resolve.ResolveThread;
+import org.anonymous.dobroreaderme.settings.Settings;
 import org.anonymous.dobroreaderme.ui.ViewablePost;
 
 /**
@@ -86,7 +87,7 @@ public class ThreadReader extends PostsReader implements ResolveDispatcher {
             String thread_str = ">>" + board + "/" + id;
             int posts_count = thread.getPostsCount();
 
-            String post_str = (posts.size()) + "/" + posts_count;
+            String post_str = post_index + "/" + posts_count;
             int thread_str_len = font.stringWidth(post_str);
             int percent = (int) Math.ceil((posts.size() * thread_str_len + 1) / (posts_count));
 
@@ -94,11 +95,13 @@ public class ThreadReader extends PostsReader implements ResolveDispatcher {
             g.drawString(thread_str + "", 0, 0, 0);
             offset += font.stringWidth(thread_str) + 10;
 
-            g.setColor(0, 0, 0);
+            g.setColor(Settings.color().bar_progressbar_background);
             g.fillRect(offset - 3, 0, thread_str_len + 6, font_height);
-            g.setColor(100, 100, 100);
+            
+            g.setColor(Settings.color().bar_progressbar_bar);
             g.fillRect(offset - 3, 0, percent + 6, font_height);
-            g.setColor(92, 0, 0);
+            
+            g.setColor(Settings.color().bar_progressbar_foreground);
             g.drawString(post_str, offset, 0, 0);
         }
     }

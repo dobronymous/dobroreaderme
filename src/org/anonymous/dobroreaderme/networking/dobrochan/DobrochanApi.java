@@ -5,6 +5,7 @@
  */
 package org.anonymous.dobroreaderme.networking.dobrochan;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Vector;
@@ -15,11 +16,13 @@ import org.anonymous.dobroreaderme.entities.BoardThread;
 import org.anonymous.dobroreaderme.entities.attachment.BoardAttachment;
 import org.anonymous.dobroreaderme.entities.attachment.BoardImage;
 import org.anonymous.dobroreaderme.networking.Api;
+import org.anonymous.dobroreaderme.networking.DownloadProgressTracker;
 import org.anonymous.dobroreaderme.networking.resolve.ResolveDispatcher;
 import org.anonymous.dobroreaderme.networking.resolve.ResolveErrorException;
 import org.anonymous.dobroreaderme.networking.util.HTTP;
 import org.anonymous.dobroreaderme.networking.aib.Dobrochan;
 import org.anonymous.dobroreaderme.networking.util.StreamUtil;
+import org.anonymous.dobroreaderme.settings.Settings;
 import org.json.me.JSONArray;
 import org.json.me.JSONException;
 import org.json.me.JSONObject;
@@ -41,18 +44,29 @@ public class DobrochanApi implements Api {
         this.d = d;
     }
 
-    public Image loadImage(String src) throws ResolveErrorException {
-        Image i = null;
+    public Image loadImage(String src, DownloadProgressTracker tracker) throws ResolveErrorException {
+        Image image = null;
         HttpConnection conn = null;
         InputStream is = null;
 
         try {
-            conn = HTTP.openConnection(dobrach.getHost() + "/" + src);
+            conn = HTTP.openConnection(imagePath(src));
+            tracker.setTotal(conn.getLength());
             is = conn.openInputStream();
-            i = Image.createImage(is);
+
+            byte[] image_data = new byte[(int) conn.getLength()]; //@TODO: is this vunerable?
+            byte[] buffer = new byte[256];
+            int readed, total = 0;
+            while ((readed = is.read(buffer)) != -1) {
+                System.arraycopy(buffer, 0, image_data, total, readed);
+                total += readed;
+                tracker.setCompleted(total);
+            }
 
             is.close();
             conn.close();
+
+            image = Image.createImage(image_data, 0, total);
         } catch (IOException e) {
             e.printStackTrace();
             throw new ResolveErrorException("IOException caused during image download: " + e.getMessage());
@@ -69,7 +83,11 @@ public class DobrochanApi implements Api {
             }
         }
 
-        return i;
+        return image;
+    }
+
+    public String imagePath(String src) throws ResolveErrorException {
+        return dobrach.getHost() + "/" + src;
     }
 
     public void loadThread(String board, int id) throws ResolveErrorException {
@@ -105,8 +123,9 @@ public class DobrochanApi implements Api {
             }
 
             BoardThread t = parseThreadHeader(new JSONObject(header));
-            if (send_thread)
+            if (send_thread) {
                 d.resolved(t);
+            }
 
             // read threads
             int braces = 0, brackets = 1; // one bracket we're already skipped
@@ -123,8 +142,9 @@ public class DobrochanApi implements Api {
                 // post brace closed
                 if (braces == 0 && b.toString().startsWith("{")) {
                     // add matching } to the end, parse, and send
-                    if (send_post)
+                    if (send_post) {
                         d.resolved(parsePost(new JSONObject(b.toString() + "}")));
+                    }
                     b = new StringBuffer();
                 }
 
@@ -268,4 +288,5 @@ public class DobrochanApi implements Api {
                 attachmentsVector
         );
     }
+
 }

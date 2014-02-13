@@ -7,7 +7,9 @@
 package org.anonymous.dobroreaderme.networking.attach;
 
 import javax.microedition.lcdui.Image;
+import org.anonymous.dobroreaderme.entities.attachment.BoardAttachment;
 import org.anonymous.dobroreaderme.networking.Api;
+import org.anonymous.dobroreaderme.networking.DownloadProgressTracker;
 import org.anonymous.dobroreaderme.networking.resolve.ResolveErrorException;
 
 /**
@@ -21,8 +23,8 @@ public class SimpleDownloader implements Downloader {
         this.api = api;
     }
     
-    public Image download(String source) throws ResolveErrorException {
-        return api.loadImage(source);
+    public Image download(String source, DownloadProgressTracker tracker) throws ResolveErrorException {
+        return api.loadImage(source, tracker);
     }
     
 }

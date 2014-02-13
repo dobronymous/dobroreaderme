@@ -18,7 +18,8 @@ import org.anonymous.dobroreaderme.networking.resolve.ResolveErrorException;
  */
 public interface Api {
     public void setDispatcher(ResolveDispatcher d);
-    public Image loadImage(String src) throws ResolveErrorException;
+    public Image loadImage(String src, DownloadProgressTracker track) throws ResolveErrorException;
+    public String imagePath(String src) throws ResolveErrorException;
     
     public void updateThread(String board, BoardThread thread) throws ResolveErrorException;
     public void loadThread(String board, int id) throws ResolveErrorException;

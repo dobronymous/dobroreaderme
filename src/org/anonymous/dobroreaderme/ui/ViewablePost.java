@@ -24,7 +24,7 @@ public class ViewablePost {
         id = p.getId();
         message_lines = ViewablePost.format(p.getMessage(), f, width);
         date = p.getDate();
-        subject_lines = ViewablePost.format(p.getSubject(), f, width);
+        subject_lines = ViewablePost.format(p.getSubject().trim(), f, width);
         name = p.getName();
         attachments = p.getAttachments();
     }
@@ -41,12 +41,12 @@ public class ViewablePost {
         return subject_lines;
     }
 
-    public int getMessageHeight(Font f) {
-        return f.getHeight() * message_lines.size();
+    public int getMessageHeight(int font_height) {
+        return font_height * message_lines.size();
     }
 
-    public int getSubjectHeight(Font f) {
-        return f.getHeight() * subject_lines.size();
+    public int getSubjectHeight(int font_height) {
+        return font_height * subject_lines.size();
     }
 
     public int getAttachmentsHeight() {
@@ -74,7 +74,6 @@ public class ViewablePost {
     }
 
     public static Vector format(String message, Font f, int width) {
-
         Vector lines = new Vector();
         String line = "";
         String word = "";
@@ -106,13 +105,22 @@ public class ViewablePost {
 
                     break;
                 case '\r':
+                    word += '\r';
                     break;
                 default:
                     word += ch;
                     break;
             }
         }
-        lines.addElement(line + word);
+        
+        if (!line.trim().equals("")) {
+            if (f.stringWidth(line + word) > width) {
+                lines.addElement(line);
+                lines.addElement(word);
+            } else {
+                lines.addElement(line + word);
+            }
+        }
 
         return lines;
     }
