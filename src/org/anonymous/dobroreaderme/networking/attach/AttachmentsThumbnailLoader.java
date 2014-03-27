@@ -35,7 +35,6 @@ public class AttachmentsThumbnailLoader extends Thread {
 
             try {
                 if (!loaded.isEmpty() && Settings.max_mem - (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) < Settings.max_mem / 10) {
-                    System.out.println(Runtime.getRuntime().freeMemory());
                     BoardAttachment a = (BoardAttachment) loaded.firstElement();
                     a.purgeThumbnail();
                     loaded.removeElementAt(0);

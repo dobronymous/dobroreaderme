@@ -15,9 +15,10 @@ public class Colorscheme {
     public int bar_background = color(96, 0, 0);
     public int bar_foreground = color(230, 230, 230);
     public int bar_progressbar_background = color(221, 204, 197);
-    public int bar_progressbar_bar = color(1701, 164, 157);
+    public int bar_progressbar_bar = color(171, 164, 157);
     public int bar_progressbar_foreground = color(96, 0, 0);
-    public int ticker_color = color(255, 255, 255);
+    public int ticker_background = color(221, 204, 197);
+    public int ticker_outline = color(171, 164, 157);
 
     public int post_outline = color(240, 224, 214);
     public int post_background = color(221, 204, 197);

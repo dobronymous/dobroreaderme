@@ -2,3 +2,6 @@ build.xml
 nbproject/
 root/
 build/
+resources/
+root/
+dist/

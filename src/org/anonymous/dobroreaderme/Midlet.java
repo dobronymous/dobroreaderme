@@ -5,11 +5,13 @@
  */
 package org.anonymous.dobroreaderme;
 
+import java.io.IOException;
 import java.util.Vector;
 import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Form;
 import javax.microedition.midlet.MIDlet;
+import javax.microedition.rms.RecordStoreException;
 import org.anonymous.dobroreaderme.networking.aib.Dobrochan;
 import org.anonymous.dobroreaderme.networking.dobrochan.DobrochanApi;
 import org.anonymous.dobroreaderme.reader.BoardReader;
@@ -19,25 +21,31 @@ import org.anonymous.dobroreaderme.settings.Settings;
  * @author sp
  */
 public class Midlet extends MIDlet {
-
     public void startApp() {
-        Settings.restore();
-        System.out.println(Settings.max_mem);
-        Vector strings;
+        /*
         try {
-            strings = new Vector();
-            while (true) {
-                strings.addElement(new String("stress test; stress test; stress test;"));
-
-                if (Runtime.getRuntime().totalMemory() > Settings.max_mem) {
-                    Settings.max_mem = (int) Runtime.getRuntime().totalMemory();
-                }
-            }
-        } catch (OutOfMemoryError e) {
+            Settings.restore();
+        } catch (RecordStoreException ex) {
+            ex.printStackTrace();
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
-        strings = null;
-        System.gc();
-        Settings.store();
+
+
+        
+        try {
+            Settings.store();
+        } catch (RecordStoreException ex) {
+            ex.printStackTrace();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        
+        */
+        
+        if (Settings.max_mem == -1) {
+            Settings.max_mem = (int) getMaxMem();
+        }
 
         try {
             changeDisplayable(new BoardReader(
@@ -62,6 +70,24 @@ public class Midlet extends MIDlet {
     }
 
     public void destroyApp(boolean unconditional) {
+    }
+    
+    protected long getMaxMem() {
+        long max_mem = 0;
+        try {
+            Vector strings = new Vector();
+            while (true) {
+                strings.addElement(new String("stress test; stress test; stress test;"));
+
+                if (Runtime.getRuntime().totalMemory() > Settings.max_mem) {
+                    max_mem = Runtime.getRuntime().totalMemory();
+                }
+            }
+        } catch (OutOfMemoryError e) {
+        }
+        System.gc();
+        
+        return max_mem;
     }
 
 }

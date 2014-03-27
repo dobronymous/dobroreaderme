@@ -34,7 +34,7 @@ public class JPGReducerDownloader implements Downloader {
     public Image download(String source) throws ResolveErrorException {
         HttpConnection c = null;
         try {
-            c = HTTP.openConnection("http://www.jpegreducer.com/conv.php");
+            c = HTTP.openGETConnection("http://www.jpegreducer.com/conv.php");
             c.setRequestMethod(HttpConnection.POST);
             c.setRequestProperty("User-Agent", "Mozilla/5.0");
             c.setRequestProperty("Accept-Language", "en-US,en;q=0.5");

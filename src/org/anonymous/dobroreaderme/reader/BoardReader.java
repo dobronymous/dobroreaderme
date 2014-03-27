@@ -21,6 +21,7 @@ import org.anonymous.dobroreaderme.networking.attach.SimpleDownloader;
 import org.anonymous.dobroreaderme.networking.resolve.ResolveThread;
 import org.anonymous.dobroreaderme.settings.Settings;
 import org.anonymous.dobroreaderme.ui.ViewablePost;
+import org.anonymous.dobroreaderme.ui.forms.ReplyForm;
 
 /**
  *
@@ -73,6 +74,7 @@ public class BoardReader extends PostsReader {
         this.board = board;
         this.page = page;
         this.midlet = midlet;
+
     }
 
     public void changeBoard(String board) {
@@ -100,7 +102,11 @@ public class BoardReader extends PostsReader {
     protected void control(int keyCode, int state) {
         super.control(keyCode, state);
 
-        if (state == 1) {
+        if (keyCode == -7) {
+            midlet.changeDisplayable(new ReplyForm(midlet, this, api, board, new BoardThread(49224, 0, null)));
+        }
+
+        if (state == 1) { 
             if (keyCode == -6) {
                 ThreadReader r = new ThreadReader(
                         api,
@@ -199,7 +205,7 @@ public class BoardReader extends PostsReader {
 
     protected void drawBar(Graphics g) { //@TODO: refactor
         super.drawBar(g);
-        
+
         String board_str = board + "/" + page;
         int threads_count = 10 > threads.size() ? 10 : threads.size();
 
@@ -214,10 +220,10 @@ public class BoardReader extends PostsReader {
 
         g.setColor(Settings.color().bar_progressbar_background);
         g.fillRect(offset - 3, 0, thread_str_len + 6, font_height);
-        
+
         g.setColor(Settings.color().bar_progressbar_bar);
         g.fillRect(offset - 3, 0, percent + 6, font_height);
-        
+
         g.setColor(Settings.color().bar_progressbar_foreground);
         g.drawString(thread_str, offset, 0, 0);
     }

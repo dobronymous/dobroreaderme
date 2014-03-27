@@ -42,7 +42,7 @@ public class ViewablePost {
     }
 
     public int getMessageHeight(int font_height) {
-        return font_height * message_lines.size();
+        return (font_height - 3) * message_lines.size();
     }
 
     public int getSubjectHeight(int font_height) {

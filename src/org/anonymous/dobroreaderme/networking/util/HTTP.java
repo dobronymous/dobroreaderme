@@ -31,7 +31,16 @@ public class HTTP {
             + "%c0%c1%c2%c3%c4%c5%c6%c7%c8%c9%ca%cb%cc%cd%ce%cf%d0%d1%d2%d3%d4%d5%d6%d7%d8%d9%da%db%dc%dd%de%df"
             + "%e0%e1%e2%e3%e4%e5%e6%e7%e8%e9%ea%eb%ec%ed%ee%ef%f0%f1%f2%f3%f4%f5%f6%f7%f8%f9%fa%fb%fc%fd%fe%ff";
 
-    public static HttpConnection openConnection(String url) throws IOException {
+    public static HttpConnection openPOSTConnection(String url) throws IOException {
+        HttpConnection c = (HttpConnection) Connector.open(url);
+        c.setRequestMethod(HttpConnection.POST);
+        c.setRequestProperty("Content-Type", "multipart/form-data");
+        writeCookies(c, Settings.getCookies());
+
+        return c;
+    }
+
+    public static HttpConnection openGETConnection(String url) throws IOException {
         HttpConnection c = (HttpConnection) Connector.open(url);
         writeCookies(c, Settings.getCookies());
         readCookies(c);

@@ -5,10 +5,12 @@
  */
 package org.anonymous.dobroreaderme.networking.dobrochan;
 
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Vector;
+import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
 import javax.microedition.lcdui.Image;
 import org.anonymous.dobroreaderme.entities.BoardPost;
@@ -44,14 +46,53 @@ public class DobrochanApi implements Api {
         this.d = d;
     }
 
+    public void reply(String board, BoardThread thread, String name, String message, String subject, String captcha) {
+        HttpConnection c = null;
+        try {
+            c = HTTP.openPOSTConnection(dobrach.getHost() + "/" + board + "/post/new.xhtml");
+            c.setRequestProperty("Content-Type", "multipart/form-data");
+            c.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1734.0 Safari/537.36");
+            HTTP.writeCookies(c, Settings.getCookies());
+            
+            DataOutputStream dos = c.openDataOutputStream();
+            dos.writeUTF(HTTP.urlEncode(
+                    "thread_id=" + thread.getId()
+                    + "&task=post&name=" + name
+                    + "&message=" + message
+                    + "&subject=" + subject
+                    + "&captcha=" + captcha
+                    + "&password=" + Settings.password
+                    + "&scroll_to=" + thread.getId()
+                    + "&new_post=Отправить"
+                    + "&post_files_count=0"
+                    + "&goto=board"
+            ));
+            dos.flush();
+            dos.close();
+
+            InputStream is = c.openInputStream();
+
+            System.out.println("message");
+            int ch;
+            while ((ch = is.read()) != -1) {
+                System.out.print((char) ch);
+            }
+            
+            is.close();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+    
     public Image loadImage(String src, DownloadProgressTracker tracker) throws ResolveErrorException {
         Image image = null;
         HttpConnection conn = null;
         InputStream is = null;
 
         try {
-            conn = HTTP.openConnection(imagePath(src));
-            tracker.setTotal(conn.getLength());
+            conn = HTTP.openGETConnection(imagePath(src));
+            if (tracker != null)
+                tracker.setTotal(conn.getLength());
             is = conn.openInputStream();
 
             byte[] image_data = new byte[(int) conn.getLength()]; //@TODO: is this vunerable?
@@ -60,7 +101,9 @@ public class DobrochanApi implements Api {
             while ((readed = is.read(buffer)) != -1) {
                 System.arraycopy(buffer, 0, image_data, total, readed);
                 total += readed;
-                tracker.setCompleted(total);
+                
+                if (tracker != null)
+                    tracker.setCompleted(total);
             }
 
             is.close();
@@ -107,7 +150,7 @@ public class DobrochanApi implements Api {
         HttpConnection c = null;
         InputStream is = null;
         try {
-            c = HTTP.openConnection(url);
+            c = HTTP.openGETConnection(url);
             if (c.getResponseCode() != 200) {
                 throw new ResolveErrorException("Server returned invalid response code: " + c.getResponseCode() + "; Message: " + c.getResponseMessage());
             }
@@ -177,7 +220,7 @@ public class DobrochanApi implements Api {
         HttpConnection c = null;
         InputStream is = null;
         try {
-            c = HTTP.openConnection(url);
+            c = HTTP.openGETConnection(url);
             if (c.getResponseCode() != 200) {
                 throw new ResolveErrorException("Server returned invalid response code: " + c.getResponseCode() + "; Message: " + c.getResponseMessage());
             }

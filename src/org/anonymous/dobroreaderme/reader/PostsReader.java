@@ -187,16 +187,15 @@ public class PostsReader extends Reader {
                             BoardAttachment a = (BoardAttachment) p.getAttachments().elementAt(n);
 
                             if (a.getLoadingState() == 0) { // if downloading not started
-                                if (getAttachmentsThumbnailLoader() instanceof CachedAttachmentsThumbnailLoader) {
+                                if (Settings.load_all_images) { // or if load all images turned on
+                                    image_loader.addTask(a);
+                                } else if (getAttachmentsThumbnailLoader() instanceof CachedAttachmentsThumbnailLoader) {
                                     CachedAttachmentsThumbnailLoader c = (CachedAttachmentsThumbnailLoader) getAttachmentsThumbnailLoader();
                                     if (c.getCache().exists(a)) { // and image exists in cache
                                         image_loader.addTask(a);
                                     }
                                 }
 
-                                if (Settings.load_all_images) { // or if load all images turned on
-                                    image_loader.addTask(a);
-                                }
                             }
 
                             if (isMenuNeedsUpdate()) {
@@ -273,9 +272,14 @@ public class PostsReader extends Reader {
 
                         if (a.getLoadingState() == 1) { // currently loading
                             g.setColor(Settings.color().post_image_loading_arc);
+                            int 
+                                    arc_x = (int) (local_attachments_offset + a.getThumbHeight() * 0.10),
+                                    arc_y = (int) (offset + a.getThumbHeight() * 0.10),
+                                    arc_h = (int) (a.getThumbHeight() * 0.80), 
+                                    arc_w = (int) (a.getThumbHeight() * 0.80);
 
                             if (a.getTotal() == 0 || a.getCompleted() == 0) { // connection not estabilished
-                                g.fillArc(local_attachments_offset, offset, a.getThumbHeight(), a.getThumbHeight(), -attachment_loading_connecting_ticker, 90);
+                                g.fillArc(arc_x, arc_y, arc_w, arc_h, -attachment_loading_connecting_ticker, 90);
                                 // ticker
                                 attachment_loading_connecting_ticker += 1;
                                 if (attachment_loading_connecting_ticker > 360) {
@@ -283,10 +287,10 @@ public class PostsReader extends Reader {
                                 }
                             } else { // connection ok, downloading in progress
                                 int angle = (int) ((float) a.getCompleted() / a.getTotal() * (360 - 90)) + 90;
-                                g.fillArc(local_attachments_offset, offset, a.getThumbHeight(), a.getThumbHeight(), 90 - angle - attachment_loading_connecting_ticker, angle);
+                                g.fillArc(arc_x, arc_y, arc_w, arc_h, 90 - angle - attachment_loading_connecting_ticker, angle);
                                 g.setColor(Settings.color().post_image_loading_text);
-                                String size = a.getTotal() / 1024 + " Kb";
-                                g.drawString(size, local_attachments_offset + a.getThumbHeight() / 2 - font.stringWidth(size) / 2, offset + a.getThumbHeight() / 2 - font_height / 2, 0);
+                                String size = a.getCompleted() / 1024 + "/" + a.getTotal() / 1024 + " Kb";
+                                g.drawString(size, arc_x + arc_w / 2, arc_y + arc_h / 2, Graphics.BASELINE | Graphics.HCENTER);
                             }
                         } else if (a.getLoadingState() == 2) { // downloading is completed
                             g.drawImage(a.getThumbnail(), local_attachments_offset, offset, 0);
@@ -324,7 +328,7 @@ public class PostsReader extends Reader {
                         String line = p.getMessageLines().elementAt(n).toString();
                         g.drawString(line.replace('\r', ' '), x, offset, 0);
                     }
-                    offset += font_height;
+                    offset += font_height - 3;
                 }
 
                 offset += this.margin;
