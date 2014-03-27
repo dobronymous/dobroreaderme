@@ -10,6 +10,7 @@ Features
 
 Controls
 ========
+```
 <UP>, <DOWN> - scroll
 
 <LEFT>, <RIGHT> - scroll attachment thumbnails
@@ -31,7 +32,7 @@ Controls
 7 - toggle thumbnails auto-load
 
 0 - unload all thumbnails from ram
-
+```
 
 Latest build
 ============
